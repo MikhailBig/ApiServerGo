@@ -1,9 +1,14 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
 	r := gin.Default()
+	r.Use(LiberalCORS)
 	r.GET("/ping", pong)
 	r.GET("/user", getUser)
 	r.POST("/user", postUser)
@@ -70,4 +75,13 @@ func postUser(c *gin.Context) {
 	c.JSON(200, gin.H{
 		"user": user,
 	})
+}
+func LiberalCORS(c *gin.Context) {
+	c.Header("Access-Control-Allow-Origin", "*")
+	if c.Request.Method == "OPTIONS" {
+		if len(c.Request.Header["Access-Control-Request-Headers"]) > 0 {
+			c.Header("Access-Control-Allow-Headers", c.Request.Header["Access-Control-Request-Headers"][0])
+		}
+		c.AbortWithStatus(http.StatusOK)
+	}
 }
